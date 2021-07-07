@@ -1,0 +1,45 @@
+{% set cap = data["sig"]["client"]["authentication"]["parameters"] -%}
+crypto logging session
+crypto logging ikev2
+crypto ikev2 proposal IKEV2_PROPOSAL_UMBRELLA
+ encryption aes-cbc-256
+ integrity sha256 sha512 sha384
+ group 20 19 14 21 5
+crypto ikev2 policy IKEV2_POLICY_UMBRELLA
+ match fvrf any
+ proposal IKEV2_PROPOSAL_UMBRELLA
+crypto ikev2 profile IKEV2_PROFILE_UMBRELLA
+ description KEYS GENERATED AT: {{ data["now"] }}
+ match fvrf any
+{% for umbrella_site in data["umbrella_sites"].keys() %}
+ match identity remote address {{ umbrella_site }} 255.255.255.255
+{% endfor %}
+ identity local email {{ cap["id"] }}
+ authentication remote pre-share key {{ cap["secret"] }}
+ authentication local pre-share key {{ cap["secret"] }}
+ dpd 10 2 periodic
+crypto ipsec transform-set IPSEC_XFORM_AES256_SHA1 esp-aes 256 esp-sha-hmac 
+ mode tunnel
+crypto ipsec profile IPSEC_PROFILE_UMBRELLA 
+ set transform-set IPSEC_XFORM_AES256_SHA1 
+ set ikev2-profile IKEV2_PROFILE_UMBRELLA
+interface Tunnel100
+ description UMBRELLA SIG TO: {{ data["umbrella_sites"][data["tunnel_dest_ip"]] }}
+ ip unnumbered {{ data["tunnel_src_intf"] }}
+ ip mtu 1440
+ ip tcp adjust-mss 1400
+ tunnel mode ipsec ipv4
+ tunnel vrf {{ data["tunnel_vrf"] }}
+ tunnel source {{ data["tunnel_src_intf"] }}
+ tunnel destination {{ data["tunnel_dest_ip"] }}
+ tunnel protection ipsec profile IPSEC_PROFILE_UMBRELLA
+interface Loopback 999
+ ip address 10.255.255.255 255.255.255.255
+{% if fvrf %}
+{% for umbrella_site in data["umbrella_sites"].keys() %}
+ip route {{ umbrella_site }} 255.255.255.255 {{ data["tunnel_ulay_nhop"] }}
+{% endfor %}
+{% endif %}
+ip route 0.0.0.0 0.0.0.0 Tunnel100 name UMBRELLA_SIG
+end
+{# write memory #}

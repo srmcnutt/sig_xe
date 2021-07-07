@@ -1,0 +1,609 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY",
+    "name": "SIG_me",
+    "title": "SIG_me",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "tabletype_01NI7605N88075QtgSsd8ylC6t8cMQFkfJ1",
+        "properties": {
+          "scope": "local",
+          "name": "sig_me_task_table",
+          "type": "datatype.table",
+          "description": "used to track tasks",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01NI773MD7GG90HtTvtsTqJFkKuGenDLafl",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.secure_string",
+        "properties": {
+          "value": "*****",
+          "scope": "local",
+          "name": "device_password",
+          "type": "datatype.secure_string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01NIABJH8KAUJ5C6irYls71RAq2rSF0eCZZ",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.secure_string",
+        "properties": {
+          "value": "*****",
+          "scope": "local",
+          "name": "device_username",
+          "type": "datatype.secure_string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01NIABCKA5S0R69XPuPANLeL9g4Yh0Q1Yc6",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.boolean",
+        "properties": {
+          "value": true,
+          "scope": "local",
+          "name": "tasks_pending",
+          "type": "datatype.boolean",
+          "description": "Condition to exit status checker while loop ",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01NI7KE1OIC0P0UitCFZhwsEZsagP5dhctP",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "description": "SIG_me mass creates Umbrella Secure Internet Gateway tunnels for Cisco routers running in autonomous (non-sdwan) mode. \n\nSIG_me does have some dependencies that have to be set up and configured so please do check the readme.md file in the github repository.  Thanks!",
+      "display_name": "SIG_me",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "target_type": "web-service.endpoint",
+        "target_id": "definition_target_01NGD654HQ2PY1D1Dgfnwj8FhnzP20BTfTV",
+        "execute_on_workflow_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01N7DT7M8CXT23Uq8TnprcBMZZcZURb1Y4F",
+        "name": "HTTP Request",
+        "title": "Sidecar Liveness Check",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "description": "Make sure our sidecar is online",
+          "display_name": "Sidecar Liveness Check",
+          "method": "GET",
+          "relative_url": "healthy",
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "use_workflow_target": true
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01NGL19NEDTEO3DNBA42OlK9WgyYufY4BK2",
+        "name": "Select from Table via JDBC",
+        "title": "Load device table from database",
+        "type": "corejava.select_from_via_jdbc",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "description": "Read the device table in from MySQL",
+          "display_name": "Load device table from database",
+          "persist_output": false,
+          "populate_columns": false,
+          "row_count": 500,
+          "runtime_user": {
+            "target_default": true
+          },
+          "skip_execution": false,
+          "sql_query": "SELECT * FROM devices",
+          "table_columns": [
+            {
+              "column_name": "name",
+              "column_type": "string"
+            },
+            {
+              "column_name": "type",
+              "column_type": "string"
+            },
+            {
+              "column_name": "mgmt_ip",
+              "column_type": "string"
+            },
+            {
+              "column_name": "tunnel_dest_ip",
+              "column_type": "string"
+            },
+            {
+              "column_name": "tunnel_src_intf",
+              "column_type": "string"
+            },
+            {
+              "column_name": "tunnel_vrf",
+              "column_type": "string"
+            },
+            {
+              "column_name": "tunnel_ulay_nhop",
+              "column_type": "string"
+            }
+          ],
+          "target": {
+            "override_workflow_target": true,
+            "target_id": "definition_target_01NGKJZWCMX4W7haMqU0lcag1C7mRS2soqq"
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y",
+        "name": "For Each",
+        "title": "Process Device List",
+        "type": "logic.for_each",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "description": "Loop through the dvice list",
+          "display_name": "Process Device List",
+          "skip_execution": false,
+          "source_array": "$activity.definition_activity_01NGL19NEDTEO3DNBA42OlK9WgyYufY4BK2.output.select_from_via_jdbc$"
+        },
+        "object_type": "definition_activity",
+        "actions": [
+          {
+            "unique_name": "definition_activity_01N7DW4MNEIJO6SFIlC6dijGZVmZZzGmEoN",
+            "name": "HTTP Request",
+            "title": "Send provision tunnel request",
+            "type": "web-service.http_request",
+            "base_type": "activity",
+            "properties": {
+              "accept": "application/json",
+              "action_timeout": 180,
+              "allow_auto_redirect": true,
+              "body": "{\n  \"umbrella_org_id\": \"$global.variable_01NIA5TMWI12Q73LvqECWfH5bVE9TobjVMM.global.variable_01NIA5TMWI12Q73LvqECWfH5bVE9TobjVMM$\",\n  \"umbrella_api_key\": \"$global.variable_01NIA78LYC9T715QuPxACx7bNe5FYSnvZAd.global.variable_01NIA78LYC9T715QuPxACx7bNe5FYSnvZAd$\",\n  \"umbrella_api_secret\": \"$global.variable_01NIA7RF4QLD43NjVA3yua98hEhbzVKkICR.global.variable_01NIA7RF4QLD43NjVA3yua98hEhbzVKkICR$\",\n  \"device_name\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].name$\",\n  \"device_type\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].type$\",\n  \"device_mgmt_ip\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].mgmt_ip$\",\n  \"device_username\": \"$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NIABCKA5S0R69XPuPANLeL9g4Yh0Q1Yc6$\",\n  \"device_password\": \"$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NIABJH8KAUJ5C6irYls71RAq2rSF0eCZZ$\",\n  \"tunnel_src_intf\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].tunnel_src_intf$\",\n  \"tunnel_dest_ip\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].tunnel_dest_ip$\",\n  \"tunnel_ulay_nhop\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].tunnel_ulay_nhop$\",\n  \"tunnel_vrf\": \"$activity.definition_activity_01NGL2QPUTYAG29ecEqN4STrhWq2EWiTs5y.input.source_array[@].tunnel_vrf$\"\n}",
+              "content_type": "application/json",
+              "continue_on_error_status_code": false,
+              "continue_on_failure": true,
+              "description": "Send a POST message to the sidecar with all of the details needed to provision a SIG tunnel in umbrella, then configure the device to use the tunnel.\n",
+              "display_name": "Send provision tunnel request",
+              "method": "POST",
+              "relative_url": "configure",
+              "runtime_user": {
+                "target_default": true
+              },
+              "skip_execution": false,
+              "target": {
+                "use_workflow_target": true
+              }
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01N92XY9LM71T7mW6sHsan4aFQI0oIDl9TD",
+            "name": "JSONPath Query",
+            "title": "Extract task id",
+            "type": "corejava.jsonpathquery",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "continue_on_failure": false,
+              "description": "extract the task id from the provision api call.",
+              "display_name": "Extract task id",
+              "input_json": "$activity.definition_activity_01N7DW4MNEIJO6SFIlC6dijGZVmZZzGmEoN.output.response_body$$activity.definition_activity_01N7DW4MNEIJO6SFIlC6dijGZVmZZzGmEoN.output.response_body$",
+              "jsonpath_queries": [
+                {
+                  "jsonpath_query": "$.Location",
+                  "jsonpath_query_name": "Location",
+                  "jsonpath_query_type": "string"
+                }
+              ],
+              "skip_execution": false
+            },
+            "object_type": "definition_activity"
+          },
+          {
+            "unique_name": "definition_activity_01NI555UEI6DZ73Pz0IBHerUR13iUrPLNLl",
+            "name": "Add Row to Table",
+            "title": "Add task id to tracking table",
+            "type": "core.addrowtotable",
+            "base_type": "activity",
+            "properties": {
+              "action_timeout": 180,
+              "continue_on_failure": false,
+              "description": "update the task tracking table with the task id of our provisioning request",
+              "display_name": "Add task id to tracking table",
+              "input_table": "$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NI773MD7GG90HtTvtsTqJFkKuGenDLafl$",
+              "row": [
+                {
+                  "key": "taskid",
+                  "type": "string",
+                  "value": "$activity.definition_activity_01N92XY9LM71T7mW6sHsan4aFQI0oIDl9TD.output.jsonpath_queries.Location$"
+                },
+                {
+                  "key": "status",
+                  "type": "string",
+                  "value": ""
+                }
+              ],
+              "skip_execution": false
+            },
+            "object_type": "definition_activity"
+          }
+        ]
+      },
+      {
+        "unique_name": "definition_activity_01NI9WYVJYDEY13dh8XffFpDa4a9AYXnTsa",
+        "name": "While Loop",
+        "title": "Wait for all provisioning tasks to complete",
+        "type": "logic.while",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "description": "Poll the status endpoint on the provisioner for all of the tasks in stage 1.  Once all the tasks have completed exit the loop.\n",
+          "display_name": "Wait for all provisioning tasks to complete",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_01NI9WYYPO4EZ6xgi5H323Z5InivFlfwPQz",
+            "name": "Condition Branch",
+            "title": "While tasks remain",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NI7KE1OIC0P0UitCFZhwsEZsagP5dhctP$",
+                "operator": "eq",
+                "right_operand": true
+              },
+              "continue_on_failure": false,
+              "description": "Keep checking task status as long as pending tasks remain.",
+              "display_name": "While tasks remain",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01NI8PN1V5ID50zFhs7adOvfkyn59QrzyH4",
+                "name": "Sleep",
+                "title": "Sleep for 5 seconds",
+                "type": "core.sleep",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "description": "The provisioning process takes from 40-140 seconds so there's little point in hammering the sidecar with needless status requests.",
+                  "display_name": "Sleep for 5 seconds",
+                  "skip_execution": false,
+                  "sleep_interval": 5
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01NI5NFTU3AEH657kWH7ciJQGiAUQl3k6PH",
+                "name": "For Each",
+                "title": "Poll the sidecar and update task status table",
+                "type": "logic.for_each",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "description": "http get that gets the status of the task. extracts if from the json body, and updates the task table.",
+                  "display_name": "Poll the sidecar and update task status table",
+                  "skip_execution": false,
+                  "source_array": "$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NI773MD7GG90HtTvtsTqJFkKuGenDLafl$"
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01N936R5BEY7D5Hxny3I6EVQ293UYkYip6Z",
+                    "name": "HTTP Request",
+                    "title": "Get task status",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": false,
+                      "description": "Poll the sidecar for the status of our provisioning task",
+                      "display_name": "Get task status",
+                      "method": "GET",
+                      "relative_url": "$activity.definition_activity_01NI5NFTU3AEH657kWH7ciJQGiAUQl3k6PH.input.source_array[@].taskid$",
+                      "runtime_user": {
+                        "target_default": true
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "use_workflow_target": true
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_01N938QOUJ2CM1mTTMq7ZCIzP0g1y9xv0VQ",
+                    "name": "JSONPath Query",
+                    "title": "Extract task State",
+                    "type": "corejava.jsonpathquery",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "continue_on_failure": false,
+                      "description": "Extract the task state from the json body",
+                      "display_name": "Extract task State",
+                      "input_json": "$activity.definition_activity_01N936R5BEY7D5Hxny3I6EVQ293UYkYip6Z.output.response_body$",
+                      "jsonpath_queries": [
+                        {
+                          "jsonpath_query": "$.state",
+                          "jsonpath_query_name": "state",
+                          "jsonpath_query_type": "string"
+                        }
+                      ],
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  },
+                  {
+                    "unique_name": "definition_activity_01NI5AJNDVIIV2W0wKuCvk6IDrC5RD7roUP",
+                    "name": "Update Row in Table",
+                    "title": "Update row in task table",
+                    "type": "core.updaterowintable",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "columns": [
+                        {
+                          "column_name": "status",
+                          "column_type": "string"
+                        }
+                      ],
+                      "continue_on_failure": false,
+                      "description": "Update the status of the task in the task tracking table",
+                      "display_name": "Update row in task table",
+                      "input_table": "$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NI773MD7GG90HtTvtsTqJFkKuGenDLafl$",
+                      "row": [
+                        {
+                          "key": "status",
+                          "type": "string",
+                          "value": "$activity.definition_activity_01N938QOUJ2CM1mTTMq7ZCIzP0g1y9xv0VQ.output.jsonpath_queries.state$"
+                        }
+                      ],
+                      "rows": {
+                        "rows_matching_criteria": true,
+                        "where_clause": "taskid= '$activity.definition_activity_01NI5NFTU3AEH657kWH7ciJQGiAUQl3k6PH.input.source_array[@].taskid$'"
+                      },
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              },
+              {
+                "unique_name": "definition_activity_01NI8IU2ZB1UF7ISqzBuJHfRigPdlPlKsUk",
+                "name": "Select from Table",
+                "title": "query for pending items in task table",
+                "type": "core.selectfromtable",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "columns": [
+                    {
+                      "column_name": "status",
+                      "column_type": "string"
+                    }
+                  ],
+                  "continue_on_failure": false,
+                  "description": "Returned the recently polled tasks that are still in a pending state\n",
+                  "display_name": "query for pending items in task table",
+                  "input_table": "$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NI773MD7GG90HtTvtsTqJFkKuGenDLafl$",
+                  "number_of_rows": {
+                    "all_rows": true
+                  },
+                  "persist_output": false,
+                  "skip_execution": false,
+                  "sorting": {
+                    "no_sort": true
+                  },
+                  "where_clause": "status = 'PENDING' OR status = ''"
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01NI9QRW0O63Y4nUS3dy5TfgQtGyaKdMN3K",
+                "name": "Condition Block",
+                "title": "evalate pending items",
+                "type": "logic.if_else",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "evalate pending items",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "blocks": [
+                  {
+                    "unique_name": "definition_activity_01NI9QRZT54VO3Rv8mXTb510gFpHDUBoYRq",
+                    "name": "Condition Branch",
+                    "title": "If no pending items set  tasks complete",
+                    "type": "logic.condition_block",
+                    "base_type": "activity",
+                    "properties": {
+                      "condition": {
+                        "left_operand": "$activity.definition_activity_01NI8IU2ZB1UF7ISqzBuJHfRigPdlPlKsUk.output.row_count$",
+                        "operator": "eq",
+                        "right_operand": 0
+                      },
+                      "continue_on_failure": false,
+                      "description": "Check to see if # of rows in a PENDING state is 0",
+                      "display_name": "If no pending items set  tasks complete",
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity",
+                    "actions": [
+                      {
+                        "unique_name": "definition_activity_01NI8XDWIQK044RQ2WR3Dud02ZOY0rJ1Sel",
+                        "name": "Set Variables",
+                        "title": "Set all tasks complete",
+                        "type": "core.set_multiple_variables",
+                        "base_type": "activity",
+                        "properties": {
+                          "continue_on_failure": false,
+                          "description": "This will cause us to exit the while loop\n",
+                          "display_name": "Set all tasks complete",
+                          "skip_execution": false,
+                          "variables_to_update": [
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01N0M1SGL89TG0S1WAZiTgF60PE7KFtGNnY.local.variable_workflow_01NI7KE1OIC0P0UitCFZhwsEZsagP5dhctP$",
+                              "variable_value_new": false
+                            }
+                          ]
+                        },
+                        "object_type": "definition_activity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "targets": {
+    "definition_target_01NGD654HQ2PY1D1Dgfnwj8FhnzP20BTfTV": {
+      "unique_name": "definition_target_01NGD654HQ2PY1D1Dgfnwj8FhnzP20BTfTV",
+      "name": "sig_me Sidecar",
+      "title": "sig_me Sidecar",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": false,
+        "display_name": "sig_me Sidecar",
+        "host": "1.1.1.1",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "port": 5000,
+        "protocol": "http"
+      }
+    },
+    "definition_target_01NGKJZWCMX4W7haMqU0lcag1C7mRS2soqq": {
+      "unique_name": "definition_target_01NGKJZWCMX4W7haMqU0lcag1C7mRS2soqq",
+      "name": "sig_me_db",
+      "title": "sig_me_db",
+      "type": "corejava.jdbc_endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "database": "sxo",
+        "dbtype": "mysql",
+        "default_runtime_user_id": "definition_runtime_user_01NGKBFNTG09N5rZFP5MCagHvAQEwK9ExX3",
+        "display_name": "sig_me_db",
+        "port": 3306,
+        "server": "nameofsqlinstance.us-east-1.rds.amazonaws.com"
+      }
+    }
+  },
+  "runtime_users": {
+    "definition_runtime_user_01NGKBFNTG09N5rZFP5MCagHvAQEwK9ExX3": {
+      "unique_name": "definition_runtime_user_01NGKBFNTG09N5rZFP5MCagHvAQEwK9ExX3",
+      "name": "sig_me_db_creds",
+      "title": "sig_me_db_creds",
+      "type": "runtime_user.database_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "description": "Network device database",
+        "display_name": "sig_me_db_creds",
+        "password": "*****",
+        "username": "*****"
+      }
+    }
+  },
+  "variables": {
+    "variable_01NIA5TMWI12Q73LvqECWfH5bVE9TobjVMM": {
+      "unique_name": "variable_01NIA5TMWI12Q73LvqECWfH5bVE9TobjVMM",
+      "properties": {
+        "value": "*****",
+        "scope": "global",
+        "name": "umbrella_org_id",
+        "type": "datatype.secure_string",
+        "is_required": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_01NIA78LYC9T715QuPxACx7bNe5FYSnvZAd": {
+      "unique_name": "variable_01NIA78LYC9T715QuPxACx7bNe5FYSnvZAd",
+      "properties": {
+        "value": "*****",
+        "scope": "global",
+        "name": "umbrella_api_key",
+        "type": "datatype.secure_string",
+        "is_required": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    },
+    "variable_01NIA7RF4QLD43NjVA3yua98hEhbzVKkICR": {
+      "unique_name": "variable_01NIA7RF4QLD43NjVA3yua98hEhbzVKkICR",
+      "properties": {
+        "value": "*****",
+        "scope": "global",
+        "name": "umbrella_api_secret",
+        "type": "datatype.secure_string",
+        "is_required": false,
+        "is_invisible": false
+      },
+      "object_type": "variable"
+    }
+  },
+  "table_types": {
+    "tabletype_01NI7605N88075QtgSsd8ylC6t8cMQFkfJ1": {
+      "unique_name": "tabletype_01NI7605N88075QtgSsd8ylC6t8cMQFkfJ1",
+      "data_type": "datatype.tabletype",
+      "display_name": "sig_me_tasks",
+      "columns": [
+        {
+          "name": "status",
+          "title": "status",
+          "type": "string"
+        },
+        {
+          "name": "taskid",
+          "title": "taskid",
+          "type": "string"
+        }
+      ],
+      "base_type": "datatype",
+      "object_type": "tabletype"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+
+CREATE DATABASE sxo;
+USE sxo;
+
+CREATE TABLE `sxo`.`devices` (
+  `iddevices` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NULL,
+  `type` VARCHAR(45) NULL,
+  `mgmt_ip` VARCHAR(45) NULL,
+  `tunnel_dest_ip` VARCHAR(45) NULL,
+  `tunnel_src_intf` VARCHAR(45) NULL,
+  `tunnel_vrf` VARCHAR(45) NULL,
+  `tunnel_ulay_nhop` VARCHAR(45) NULL,
+  PRIMARY KEY (`iddevices`));
+
+INSERT INTO `devices`(
+	`name`,
+	`type`,
+	`mgmt_ip`,
+	`tunnel_src_intf`,
+	`tunnel_dest_ip`,
+	`tunnel_ulay_nhop`,
+	`tunnel_vrf`)
+VALUES 
+	('spoke1-rtr1', 'ISR', '10.253.33.2', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke2-rtr1', 'ISR', '10.253.33.3', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke3-rtr1', 'ISR', '10.253.33.4', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke4-rtr1', 'ISR', '10.253.33.5', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke5-rtr1', 'ISR', '10.253.33.6', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke6-rtr1', 'ISR', '10.253.33.7', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke7-rtr1', 'ISR', '10.253.33.8', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke8-rtr1', 'ISR', '10.253.33.9', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke9-rtr1', 'ISR', '10.253.33.10', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1'),
+	('spoke10-rtr1', 'ISR', '10.253.33.11', 'GigabitEthernet1', '146.112.82.8', '10.253.33.1', 'FVRF-1');

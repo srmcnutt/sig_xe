@@ -1,0 +1,4 @@
+venv/
+**.pyc
+dump.rdb
+.DS_Store

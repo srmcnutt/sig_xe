@@ -1,0 +1,7 @@
+{% set cap = data["sig"]["client"]["authentication"]["parameters"] -%}
+crypto ikev2 profile IKEV2_PROFILE_UMBRELLA
+ description KEYS GENERATED AT: {{ data["now"] }}
+ authentication remote pre-share key {{ cap["secret"] }}
+ authentication local pre-share key {{ cap["secret"] }}
+end
+{# write memory #}

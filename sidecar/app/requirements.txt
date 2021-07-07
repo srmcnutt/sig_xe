@@ -1,0 +1,7 @@
+flask
+requests
+netmiko
+jinja2
+jsonschema
+celery==4.4.7
+redis

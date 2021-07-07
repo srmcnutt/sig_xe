@@ -1,0 +1,52 @@
+{
+  "title": "tunnel_params",
+  "type": "object",
+  "properties": {
+    "device_name": {
+      "type": "string",
+      "description": "The IKEv2 identity prefix and device name"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "ISR",
+        "ASA"
+      ],
+      "description": "The Type of device being managed"
+    },
+    "device_mgmt_ip": {
+      "type": "string",
+      "description": "The IP to connect to using SSH"
+    },
+    "device_username": {
+      "type": "string",
+      "description": "The SSH username"
+    },
+    "device_password": {
+      "type": "string",
+      "description": "The SSH password"
+    },
+    "tunnel_src_intf": {
+      "type": "string",
+      "description": "The tunnel source interface name"
+    },
+    "tunnel_dest_ip": {
+      "type": "string",
+      "description": "The destination of the tunnel (an Umbrella data center)"
+    },
+    "tunnel_ulay_nhop": {
+      "type": "string",
+      "description": "The underlay next-hop towards the tunnel destination"
+    }
+  },
+  "required": [
+    "device_name",
+    "device_type",
+    "device_mgmt_ip",
+    "device_username",
+    "device_password",
+    "tunnel_src_intf",
+    "tunnel_dest_ip",
+    "tunnel_ulay_nhop"
+  ]
+}

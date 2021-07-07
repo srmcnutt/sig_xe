@@ -1,0 +1,21 @@
+{
+    "146.112.67.8": "US-1: Los Angeles, CA",
+    "146.112.66.8": "US-1: Santa Clara, CA",
+    "146.112.83.8": "US-2: New York, NY",
+    "146.112.82.8": "US-2: Ashburn, VA",
+    "146.112.97.8": "EU-1: London, UK",
+    "146.112.96.8": "EU-1: Frankfurt, DE",
+    "146.112.107.8": "EU-2: Milan, IT",
+    "146.112.102.8": "EU-2: Paris, FR",
+    "146.112.103.8": "EU-2: Prague, CZ",
+    "146.112.113.8": "AS-1: Singapore, SG",
+    "146.112.112.8": "AS-1: Tokyo, JP",
+    "146.112.118.8": "AU-1: Sydney, AU",
+    "146.112.119.8": "AU-1: Melbourne, AU",
+    "146.112.65.8": "CA-1: Toronto, CA",
+    "146.112.64.8": "CA-1: Vancouver, CA",
+    "146.112.93.8": "BR-1: Rio de Janeiro, BR",
+    "146.112.92.8": "BR-1: Sao Paulo, BR",
+    "208.67.220.220": "Umbrella DNS",
+    "208.67.222.222": "Umbrella DNS"
+}
