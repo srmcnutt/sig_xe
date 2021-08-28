@@ -102,18 +102,9 @@
 
 **Note:** This is a proof of concept workflow. The sidecar is not hardend for production use!
 
-## Planned Improvements
+## TODO
 - [] Clean up docs and submit to devnet automation exchange
-- [] https/let's encrypt on sidecar
-- [] api key authentication on sidecar
-- [] more detail in the status table
-- [] proper fvrf detection in build_sig.py
-- [] make test loopback interface a configurable
-- [] ASA support
-- [] refactor build_sig.py into a proper OO design
-- [] unit and integration tests
-- [] helper workflow to provision mysql db in aws
-- [] helper workflow to detect public ip of orchestrator and program aws security group 
+
 
 ## Author(s)
 
