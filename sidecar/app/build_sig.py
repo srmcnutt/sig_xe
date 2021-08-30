@@ -5,6 +5,8 @@ Authors: Nick Russo (nickrus@cisco.com) and Steve McNutt (stmcnutt@cisco.com)
 Purpose: Provision new Umbrella SIG tunnels or rekey existing ones then
 configure the Cisco device side using IOS or ASA platforms. Also performs
 a validation to ensure the tunnel was formed successfully.
+
+Copyright Cisco 2021 using Sample Code license.
 """
 
 from datetime import datetime

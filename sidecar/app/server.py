@@ -3,6 +3,13 @@ from celery import Celery
 import os
 import build_sig
 
+"""
+Authors: Nick Russo (nickrus@cisco.com) and Steve McNutt (stmcnutt@cisco.com)
+Purpose: Provides basic front-end for SXO/celery operations.
+
+Copyright Cisco 2021 using Sample Code license.
+"""
+
 app = Flask(__name__)
 app.config['CELERY_BROKER_URL'] = os.environ.get("CELERY_BROKER_URL")
 app.config['CELERY_RESULT_BACKEND'] = os.environ.get("CELERY_RESULT_BACKEND")
