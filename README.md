@@ -1,112 +1,110 @@
-
-
 # SecureY SXO Hackathon Submission
+This project configures Umbrella Secure Internet Gateway (SIG) on remote
+network devices. Customers can quickly provision large, distributed networks
+and perform automated key rollovers to integrate with SIG. The solution is
+particularly useful for disaster response/humanitarian operations, but can be
+used for any use case in which it is well-suited.
 
-## Features
-* Configures Umbrella Secure Internet Gateway on a list of routers
+> Contact information:\
+> Steven McNutt (Cisco Systems / stmcnutt@cisco.com)\
+> Nick Russo (Cisco Systems / nickrus@cisco.com)
 
-## workflow overview: 
+## Workflow Overview
 
 ![Screenshot](screenshots/overview.png)
 
-> **Note:** This is a proof of concept workflow. The sidecar is not hardend for production use!
+> **Note:** This is a proof of concept workflow. The sidecar is not hardened for production use!
 
 ---------------------------------------------------------------------------
 
-  * [Required targets](#Required-Targets)
-  * [Required account keys](#Required-Account-Keys)
-  * [Required global variables](#Required-Global-Variables)
-  * [Required local variables](#Required-Local-Variables)
+  * [Required Targets](#Required-Targets)
+  * [Required Account Keys](#Required-Account-Keys)
+  * [Required Global Variables](#Required-Global-Variables)
+  * [Required Local Variables](#Required-Local-Variables)
   * [External Dependencies](#External-dependencies)
-  * [Setup instructions](#Setup-instructions)
+  * [Setup Instructions](#Setup-instructions)
   * [Notes](#Notes)
-  * [Planned Improvements](#Planned-Improvements)
-  * [Authors](#Author(s))
 ----------------------------------------------------------------------------
 
 ## Required Targets
-- sig_me Sidecar
-- sig_me_db
+- `sig_me` sidecar: References the IP of the `docker-compose` sidecar app.
+- `sig_me_db`: References the mySQL database string within SXO
 
 ## Required Account Keys
-- sig_me_db_creds (mysql username/password)
+- `sig_me_db_creds`: Define these to include the mySQL username and password.
 
 ## Required Global Variables
-- umbrella_org_id
-- umbrella_api_key
-- umbrella_api_secret
+- `umbrella_org_id`: The numeric Umbrella organization ID to which you have read/write access.
+- `umbrella_api_key`: The Umbrella Management API key; used as HTTP basic auth username.
+- `umbrella_api_secret`: The Umbrella Management API secret; used as HTTP basic auth password.
 
 ## Required Local Variables
-- device_username
-- device_password
+- `device_username`: The shell login username on the managed network device (router, firewall, etc.)
+- `device_password`: The shell login password on the managed network device (router, firewall, etc.) 
 
-## External dependencies
-- SQL Database for sig_me_db
-- instance of sidecar docker compose app running on-prem for sig_me Sidecar
-- optional remote connector if you can't create a nat/firewall rule for the sidecar<-->SXO
+## External Dependencies
+- SQL Database for `sig_me_db` connection.
+- Instance of sidecar `docker-compose` app running on-premises for `sig_me` Sidecar.
+- Optional remote connector if you can't create a NAT/firewall rule for the sidecar/SXO communications.
 
-## Setup instructions
+## Setup Instructions
 * Pour yourself a fresh cup of coffee.
 * Put some good music on. 
-* Gather up your hostnames, keys, and credentials
-* make sure you record the IP addresses and ports from the external dependency setup (which we will tackle first)
+* Collect the following information of interest:
+  * Hostnames
+  * Keys
+  * Credentials
+  * IP addresses
+  * TCP/UDP ports (firewall rules, etc.)
   
-### Create a mysql database instance
-  * In my case I used and AWS RDS mySQL instance free tier.
-    * you'll need to add the public ip SXO makes it's calls from to the AWS network security group
-      * an easy way to get this is make an http target using a high port that points at a firewall
-      * create a workflow that runs an http request
-      * check the event log on the firewall to get the ip :)
-      * add this IP to the AWS NSG for your db instance
+### Create a mySQL Database Instance
+  * In my case, I used and AWS RDS mySQL instance free tier.
+    * You'll need to add the public IP that SXO makes its calls from to the AWS network security group (NSG).
+      * An easy way to get this is make an HTTP target using a high TCP port number that points at a firewall.
+      * Create a workflow that runs an HTTP request.
+      * Check the event log on the firewall to get the IP.
+      * Add this IP to the AWS NSG for your mySQL database instance.
   
-### Create the database and table in the mySQL instance
-  * open the example_db_setup_script in the sql folder
-  * change the values to match the devices you want to configure
-  * log in to the db with the mysql client and paste your text in so create and populate your db
+### Create the mySQL Database
+  * Open the `example_db_setup_script` in the `sql/` directory.
+  * Change the values to match the devices you want to configure.
+  * Log in to the database with the mySQL client and paste your text in.
 
-### Set up the sidecar
-  * spin up an ubuntu (or your favorite distro) vm
-  * write down the ip for the sig_me Sidecar hostname/ip
-    * if using connector just use this ip and port 5000 
-    * if NAT/firewall, make a rule that allows TCP/5000 from sxo
-  * install docker and docker-compose on it
-  * clone this repository to the vm
-  * from an ssh session:
-    * go to the sidecar folder
-    * type docker-compose build (one time only) 
-    * type docker-compose up (whenever you want to bring up the sidecar)
-  * NOTE* docker-compose down will bring the sidecar down
+### Set Up the Sidecar
+  * Spin up an Ubuntu (or your favorite distro) instance.
+  * Write down the IP for the `sig_me` Sidecar hostname/IP.
+    * If using connector just use this IP and port 5000.
+    * If NAT/firewall, make a rule that allows TCP/5000 from SXO.
+  * Install Docker and `docker-compose` on the instance.
+  * Clone this repository to the instance.
+  * Open an SSH session and then:
+    * Go to the sidecar folder
+    * Type `docker-compose build` (one time only) 
+    * Type `docker-compose up` (whenever you want to bring up the sidecar)
+  * NOTE: `docker-compose` down will bring the sidecar down
 
-### Edit sig_me.json to modify our http and JDBC targets
-  * open sig_me.json in a text editor
-  * search for targets to go to the targets section
-    * change the sig_me Sidecar "host": value to the hostname or ip of your sidecar
-    * change the sig_me_db "server": value to the hostname or ip of your mysql instance 
+### Modify http and JDBC Targets
+  * Open `sig_me.json` in a text editor.
+  * Search for targets to go to the targets section
+    * Change the `sig_me` Sidecar "host": value to the sidecar hostname/IP.
+    * Change the `sig_me_db` "server": value to the mySQL hostname/IP.
 
-### (optional) deploy SXO remote connector and configure sig_me http target to use
-  * This is the preferred option over over a firewall/nat rule.
-    * however at the time of this writing connector is still very beta and not reliable
+### Deploy SXO Remote Connector (Optional)
+  * This is the preferred option as compared to a firewall/NAT rule.
+    However, at the time of this writing, the connector is still beta and not reliable
   
-### Import the workflow
+### Import the Workflow
 
 1. In the left pane menu, select **Workflows**. Click on **IMPORT** to import the workflow.
 
-2. Click on **Browse** and copy paste the content of your edited sig_me.json file inside of the text window.  Select **IMPORT AS A NEW WORKFLOW (CLONE)** and click on **IMPORT**.
+2. Click on **Browse** and copy paste the content of your edited `sig_me.json` file
+   inside of the text window. Select **IMPORT AS A NEW WORKFLOW (CLONE)** and click on **IMPORT**.
 
-3. Next steps, like updating targets / account keys and setting a trigger / running the workflow.
+3. Next steps, like updating targets/account keys, setting a trigger, and running the workflow.
 
-4. If the mySql target is unreachable you'll get an import error. make sure SXO can reach the database and the import should be successful
-
+4. If the mySQL target is unreachable, you'll get an import error.
+   Ensure SXO can reach the database and the import should be successful.
 
 ## Notes
 
-**Note:** This is a proof of concept workflow. The sidecar is not hardend for production use!
-
-## TODO
-- [] Clean up docs and submit to devnet automation exchange
-
-
-## Author(s)
-
-* Nick Russo (Cisco Systems)
-* Steven McNutt (Cisco Systems)
+This is a proof of concept workflow. The sidecar is not hardend for production use!
