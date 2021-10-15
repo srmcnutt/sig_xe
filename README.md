@@ -1,4 +1,4 @@
-# SecureY SXO Hackathon Submission
+# SIG_XE - Mass configure Umbrella Secure Internet Gateway on routers.
 This project configures Umbrella Secure Internet Gateway (SIG) on remote
 network devices. Customers can quickly provision large, distributed networks
 and perform automated key rollovers to integrate with SIG. The solution is
@@ -11,7 +11,7 @@ used for any use case in which it is well-suited.
 
 ## Workflow Overview
 
-![Screenshot](screenshots/overview.png)
+![Activity diagram](diagrams/sig_xe-sequence.drawio.svg)
 
 > **Note:** This is a proof of concept workflow. The sidecar is not hardened for production use!
 

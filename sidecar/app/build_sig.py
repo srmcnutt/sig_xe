@@ -6,7 +6,8 @@ Purpose: Provision new Umbrella SIG tunnels or rekey existing ones then
 configure the Cisco device side using IOS or ASA platforms. Also performs
 a validation to ensure the tunnel was formed successfully.
 
-Copyright Cisco 2021 using Sample Code license.
+Copyright (c) 2021 Cisco Systems, Inc. and its affiliates
+All rights reserved
 """
 
 from datetime import datetime
