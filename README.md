@@ -11,7 +11,7 @@ used for any use case in which it is well-suited.
 
 ## Workflow Overview
 
-![Screenshot](screenshots/overview.png)
+![Activity diagram](diagrams/sig_xe-sequence.drawio.svg)
 
 > **Note:** This is a proof of concept workflow. The sidecar is not hardened for production use!
 

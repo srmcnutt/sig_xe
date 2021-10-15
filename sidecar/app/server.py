@@ -7,7 +7,8 @@ import build_sig
 Authors: Nick Russo (nickrus@cisco.com) and Steve McNutt (stmcnutt@cisco.com)
 Purpose: Provides basic front-end for SXO/celery operations.
 
-Copyright Cisco 2021 using Sample Code license.
+Copyright (c) 2021 Cisco Systems, Inc. and its affiliates
+All rights reserved
 """
 
 app = Flask(__name__)
