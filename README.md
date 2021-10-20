@@ -1,3 +1,5 @@
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/srmcnutt/sig_xe)
+
 # SIG_XE - Mass configure Umbrella Secure Internet Gateway on routers.
 This project configures Umbrella Secure Internet Gateway (SIG) on remote
 network devices. Customers can quickly provision large, distributed networks
