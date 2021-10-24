@@ -11,6 +11,9 @@ used for any use case in which it is well-suited.
 > Steven McNutt (Cisco Systems / stmcnutt@cisco.com)\
 > Nick Russo (Cisco Systems / nickrus@cisco.com)
 
+## Devnet Create Presentation
+[Devnet Create 2021 Powerpoint Deck](create_preso/create_preso.pptx)
+
 ## Workflow Overview
 
 ![Activity diagram](diagrams/sig_xe-sequence.drawio.svg)
