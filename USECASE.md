@@ -1,7 +1,5 @@
-SIG_XE
-=====================================
 Mass configure Umbrella Secure Internet Gateway on routers
-
+=====================================
 This project configures Umbrella Secure Internet Gateway (SIG) on remote
 network devices. Customers can quickly provision large, distributed networks
 and perform automated key rollovers to integrate with SIG. The solution is
